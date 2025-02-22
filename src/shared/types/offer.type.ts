@@ -1,7 +1,7 @@
 import { CityType } from './city-type.enum.js';
-import { Goods } from './goods.type.js';
+import { Goods } from './goods.enum.js';
 import { Location } from './location.type.js';
-import { RentType } from './rent-type.type.js';
+import { RentType } from './rent-type.enum.js';
 import { User } from './user.type.js';
 
 export type Offer = {

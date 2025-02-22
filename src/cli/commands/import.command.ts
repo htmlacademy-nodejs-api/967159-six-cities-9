@@ -1,6 +1,5 @@
 import { TSVFileReader } from '../../shared/libs/file-reader/tsv-file-reader.js';
 import { Command } from './command.interface.js';
-import chalk from 'chalk';
 
 
 export class ImportCommand implements Command {
@@ -10,6 +9,10 @@ export class ImportCommand implements Command {
 
   public execute (...parameters: string[]): void {
     const [filename] = parameters;
+    if (!filename) {
+      throw new Error('Unexpected parameter: filename not found');
+    }
+
     const fileReader = new TSVFileReader(filename.trim());
 
     try {
@@ -19,8 +22,8 @@ export class ImportCommand implements Command {
       if (!(err instanceof Error)) {
         throw err;
       }
-      console.error(chalk.bold.red(`Can't import data from file ${filename}`));
-      console.error(chalk.red(`Details: ${err.message}`));
+      console.error(`Can't import data from file ${filename}`);
+      console.error(`Details: ${err.message}`);
     }
     console.log(parameters);
   }

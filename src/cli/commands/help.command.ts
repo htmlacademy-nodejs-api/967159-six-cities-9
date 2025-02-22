@@ -12,9 +12,9 @@ export class HelpCommand implements Command {
       Пример:
           cli.js --<command> [--arguments]
       Команды:
-          --version:                   # выводит номер версии
-          --help:                      # печатает этот текст
-          --import <path>:             # импортирует данные из TSV
+          --version:                   # выводит номер версии приложения
+          --help:                      # печатает текст с подсказками
+          --import <path>:             # импортирует данные из TSV по пути, переданному в параметре <path>
           --generate <n> <path> <url>  # генерирует произвольное количество тестовых данных
     `));
   }

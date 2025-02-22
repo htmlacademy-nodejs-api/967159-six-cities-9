@@ -3,11 +3,12 @@ import { readFileSync } from 'node:fs';
 import { FileReader } from './file-reader.interface.js';
 import { Offer } from '../../types/offer.type.js';
 import { CityType } from '../../types/city-type.enum.js';
-import { RentType } from '../../types/rent-type.type.js';
-import { Goods } from '../../types/goods.type.js';
-import { User } from '../../types/user.type.js';
+import { RentType } from '../../types/rent-type.enum.js';
 import { UserType } from '../../types/user-type.enum.js';
-import { Location } from '../../types/location.type.js';
+
+import { DECIMAL, LINEBREAK, TAB } from '../../../const.js';
+import { isDate } from './utils.js';
+import { SEMICOLON } from './const.js';
 
 
 export class TSVFileReader implements FileReader {
@@ -27,15 +28,15 @@ export class TSVFileReader implements FileReader {
   }
 
   private validateRawData (): void {
-    if (! this.rawData) {
+    if (!this.rawData) {
       throw new Error('File was not read');
     }
   }
 
   private parseRawDataToOffers(): Offer[] {
     return this.rawData
-      .split('\n')
-      .filter((row) => row.trim().length > 0)
+      .split(LINEBREAK)
+      .filter((row) => row.trim().length)
       .map((line) => this.parseLineToOffer(line));
   }
 
@@ -62,58 +63,43 @@ export class TSVFileReader implements FileReader {
       userType,
       commentsCount,
       location,
-    ] = line.split('\t');
+    ] = line.split(TAB);
 
     return {
       title,
       description,
-      postDate: new Date(createdDate),
-      city: CityType[city as 'Paris'| 'Cologne' | 'Brussels' | 'Amsterdam' | 'Hamburg' | 'Dusseldorf' ],
+      postDate: isDate(new Date(createdDate)) ? new Date(createdDate) : new Date(),
+      city: CityType[city as 'Paris'| 'Cologne' | 'Brussels' | 'Amsterdam' | 'Hamburg' | 'Dusseldorf'],
       previewImage,
-      images: this.parseImages(images),
+      images: this.parseToArray(images),
       isPremium: Boolean(isPremium),
       isFavorite: Boolean(isFavorite),
       rating: this.parseToNum(rating),
-      type: type as RentType,
+      type: RentType[type as 'Apartment' | 'House' | 'Room' | 'Hotel'],
       bedrooms: this.parseToNum(bedrooms),
       maxAdults: this.parseToNum(maxAdults),
       price: this.parseToNum(price),
-      goods: this.parseGoods(goods),
-      host: this.parseUser(userName, email, avatarUrl, password, UserType[userType as 'Pro' | 'Plain']),
+      goods: this.parseToArray(goods),
+      host: {
+        email,
+        name: userName,
+        avatarUrl,
+        password,
+        type: UserType[userType as 'Pro' | 'Plain']
+      },
       commentsCount: this.parseToNum(commentsCount),
-      location: this.parseLocation(location),
+      location: {
+        latitude: Number(this.parseToArray(location)[0]),
+        longitude: Number(this.parseToArray(location)[1]),
+      },
     };
   }
 
-  private parseImages (imagesString: string): string[] {
-    return imagesString.split(';').map((name) => (name));
+  private parseToArray<T> (string: string): T[] {
+    return string.split(SEMICOLON).map((name) => name as T);
   }
-
-  private parseUser (
-    name: string,
-    email: string,
-    avatarUrl: string,
-    password: string,
-    type: UserType
-  ): User {
-    return { email, name, avatarUrl, password, type};
-  }
-
-  private parseGoods (goodsString: string): Goods[] {
-    return goodsString.split(';').map((name) => name as Goods);
-  }
-
 
   private parseToNum (dataString: string): number {
-    return Number.parseInt(dataString, 10);
-  }
-
-  private parseLocation (locationString: string): Location {
-    const data = locationString.split(',');
-
-    return {
-      latitude: Number(data[0]),
-      longitude: Number(data[1])
-    };
+    return Number.parseInt(dataString, DECIMAL);
   }
 }
