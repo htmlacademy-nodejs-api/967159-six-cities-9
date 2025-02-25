@@ -1,43 +1,49 @@
-import { readFileSync } from 'node:fs';
+import EventEmitter from 'node:events';
+import { createReadStream } from 'node:fs';
 
 import { FileReader } from './file-reader.interface.js';
-import { Offer } from '../../types/offer.type.js';
-import { CityType } from '../../types/city-type.enum.js';
-import { RentType } from '../../types/rent-type.enum.js';
-import { UserType } from '../../types/user-type.enum.js';
+import { Offer, CityType, RentType, UserType } from '../../types/index.js';
 
-import { DECIMAL, LINEBREAK, TAB } from '../../../const.js';
+
+import { DECIMAL, LINEBREAK, TAB, SEMICOLON, ZERO } from '../../../const.js';
 import { isDate } from './utils.js';
-import { SEMICOLON } from './const.js';
 
 
-export class TSVFileReader implements FileReader {
-  private rawData = '';
+const ONE = 1;
+
+
+export class TSVFileReader extends EventEmitter implements FileReader {
+  private CHUNK_SIZE = 16384;
 
   constructor(
     private readonly filename: string
-  ) {}
-
-  public read () {
-    this.rawData = readFileSync(this.filename, { encoding: 'utf-8' });
+  ) {
+    super();
   }
 
-  public toArray (): Offer[] {
-    this.validateRawData();
-    return this.parseRawDataToOffers();
-  }
+  public async read (): Promise<void> {
+    const readStream = createReadStream(this.filename, {
+      highWaterMark: this.CHUNK_SIZE,
+      encoding: 'utf-8',
+    });
 
-  private validateRawData (): void {
-    if (!this.rawData) {
-      throw new Error('File was not read');
+    let remainingData = '';
+    let nextLinePosition = -1;
+    let importedRowCount = 0;
+
+    for await (const chunk of readStream) {
+      remainingData += chunk.toString();
+
+      while ((nextLinePosition = remainingData.indexOf(LINEBREAK)) >= ZERO) {
+        const completeRow = remainingData.slice(ZERO, nextLinePosition + ONE);
+        remainingData = remainingData.slice(++nextLinePosition);
+        importedRowCount++;
+
+        const parsedOffer = this.parseLineToOffer(completeRow);
+        this.emit('line', parsedOffer);
+      }
     }
-  }
-
-  private parseRawDataToOffers(): Offer[] {
-    return this.rawData
-      .split(LINEBREAK)
-      .filter((row) => row.trim().length)
-      .map((line) => this.parseLineToOffer(line));
+    this.emit('end', importedRowCount);
   }
 
   private parseLineToOffer(line: string): Offer {

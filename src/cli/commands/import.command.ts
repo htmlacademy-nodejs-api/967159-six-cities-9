@@ -1,5 +1,7 @@
 import { TSVFileReader } from '../../shared/libs/file-reader/tsv-file-reader.js';
+import { getErrorMessage } from '../../shared/helpers/index.js';
 import { Command } from './command.interface.js';
+import { Offer } from '../../shared/types/offer.type.js';
 
 
 export class ImportCommand implements Command {
@@ -7,7 +9,7 @@ export class ImportCommand implements Command {
     return '--import';
   }
 
-  public execute (...parameters: string[]): void {
+  public async execute (...parameters: string[]): Promise<void> {
     const [filename] = parameters;
     if (!filename) {
       throw new Error('Unexpected parameter: filename not found');
@@ -15,16 +17,22 @@ export class ImportCommand implements Command {
 
     const fileReader = new TSVFileReader(filename.trim());
 
+    fileReader.on('line', this.onImportedOffer);
+    fileReader.on('end', this.onCompleteImport);
+
     try {
       fileReader.read();
-      console.log(fileReader.toArray());
     } catch (err) {
-      if (!(err instanceof Error)) {
-        throw err;
-      }
       console.error(`Can't import data from file ${filename}`);
-      console.error(`Details: ${err.message}`);
+      console.error(getErrorMessage(err));
     }
-    console.log(parameters);
+  }
+
+  private onImportedOffer (offer: Offer): void {
+    console.info(offer);
+  }
+
+  private onCompleteImport(count: number) {
+    console.info(`${count} rows imported.`);
   }
 }
