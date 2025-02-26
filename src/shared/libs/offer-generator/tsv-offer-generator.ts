@@ -1,34 +1,28 @@
 import dayjs from 'dayjs';
 
 import { generateRandomValue, getRandomItem, getRandomItems } from '../../helpers/common.js';
-import { MockServerData, CityType, RentType, Goods, UserType } from '../../types/index.js';
+import { MockServerData, City, RentType, Goods, UserType } from '../../types/index.js';
 import { OfferGenerator } from './offer-generator.interface.js';
-import { SEMICOLON, TAB } from '../../../const.js';
+import { SEPARATOR, TAB } from '../../../const.js';
 
-
-const MIN_PRICE = 100;
-const MAX_PRICE = 100_000;
-
-const FIRST_WEEK_DAY = 1;
-const LAST_WEEK_DAY = 7;
-
-const MIN_RATING = 1;
-const MAX_RATING = 5;
-
-const MIN_ROOMS_COUNT = 1;
-const MAX_ROOMS_COUNT = 8;
-
-const MIN_SOME_COUNT = 1;
-const MAX_SOME_COUNT = 10;
-
-const MIN_LATITUDE = 48;
-const MAX_LATITUDE = 54;
-
-const MIN_LONGITUDE = 2;
-const MAX_LONGITUDE = 11;
-
-const NUM_AFTER_DIGIT = 1;
-const NUM_AFTER_DIGIT_LOCATION = 6;
+const LIMITS = {
+  MIN_PRICE: 100,
+  MAX_PRICE: 100_000,
+  FIRST_WEEK_DAY: 1,
+  LAST_WEEK_DAY: 7,
+  MIN_RATING: 1,
+  MAX_RATING: 5,
+  MIN_ROOMS_COUNT: 1,
+  MAX_ROOMS_COUNT: 8,
+  MIN_SOME_COUNT: 1,
+  MAX_SOME_COUNT: 10,
+  MIN_LATITUDE: 48,
+  MAX_LATITUDE: 54,
+  MIN_LONGITUDE: 2,
+  MAX_LONGITUDE: 11,
+  NUM_AFTER_DIGIT: 1,
+  NUM_AFTER_DIGIT_LOCATION: 6,
+} as const;
 
 
 export class TSVOfferGenerator implements OfferGenerator {
@@ -37,30 +31,30 @@ export class TSVOfferGenerator implements OfferGenerator {
   public generate(): string {
     const title = getRandomItem<string>(this.mockData.titles);
     const description = getRandomItem<string>(this.mockData.descriptions);
-    const city = getRandomItem(Object.keys(CityType));
+    const city = getRandomItem(Object.keys(City));
     const previewImage = getRandomItem<string>(this.mockData.previewImages);
-    const images = getRandomItems<string>(this.mockData.images).join(SEMICOLON);
+    const images = getRandomItems<string>(this.mockData.images).join(SEPARATOR);
     const isPremium = getRandomItem<boolean>([true, false]).toString();
     const isFavorite = getRandomItem<boolean>([true, false]).toString();
-    const rating = generateRandomValue(MIN_RATING, MAX_RATING, NUM_AFTER_DIGIT).toString();
+    const rating = generateRandomValue(LIMITS.MIN_RATING, LIMITS.MAX_RATING, LIMITS.NUM_AFTER_DIGIT).toString();
     const type = getRandomItem(Object.keys(RentType));
-    const bedrooms = generateRandomValue(MIN_ROOMS_COUNT, MAX_ROOMS_COUNT).toString();
-    const maxAdults = generateRandomValue(MIN_SOME_COUNT, MAX_SOME_COUNT).toString();
-    const price = generateRandomValue(MIN_PRICE, MAX_PRICE).toString();
-    const goods = getRandomItems<string>(Object.values(Goods)).join(SEMICOLON);
+    const bedrooms = generateRandomValue(LIMITS.MIN_ROOMS_COUNT, LIMITS.MAX_ROOMS_COUNT).toString();
+    const maxAdults = generateRandomValue(LIMITS.MIN_SOME_COUNT, LIMITS.MAX_SOME_COUNT).toString();
+    const price = generateRandomValue(LIMITS.MIN_PRICE, LIMITS.MAX_PRICE).toString();
+    const goods = getRandomItems<string>(Object.values(Goods)).join(SEPARATOR);
     const name = getRandomItem(this.mockData.users);
     const email = getRandomItem(this.mockData.emails);
     const avatarUrl = getRandomItem(this.mockData.avatars);
     const password = getRandomItem(this.mockData.passwords);
     const userType = getRandomItem(Object.keys(UserType));
-    const commentsCount = generateRandomValue(MIN_SOME_COUNT, MAX_SOME_COUNT).toString();
+    const commentsCount = generateRandomValue(LIMITS.MIN_SOME_COUNT, LIMITS.MAX_SOME_COUNT).toString();
     const location = [
-      generateRandomValue(MIN_LATITUDE, MAX_LATITUDE, NUM_AFTER_DIGIT_LOCATION).toString(),
-      generateRandomValue(MIN_LONGITUDE, MAX_LONGITUDE, NUM_AFTER_DIGIT_LOCATION).toString()
-    ].join(SEMICOLON);
+      generateRandomValue(LIMITS.MIN_LATITUDE, LIMITS.MAX_LATITUDE, LIMITS.NUM_AFTER_DIGIT_LOCATION).toString(),
+      generateRandomValue(LIMITS.MIN_LONGITUDE, LIMITS.MAX_LONGITUDE, LIMITS.NUM_AFTER_DIGIT_LOCATION).toString()
+    ].join(SEPARATOR);
 
     const postDate = dayjs()
-      .subtract(generateRandomValue(FIRST_WEEK_DAY, LAST_WEEK_DAY), 'day')
+      .subtract(generateRandomValue(LIMITS.FIRST_WEEK_DAY, LIMITS.LAST_WEEK_DAY), 'day')
       .toISOString();
 
     return [

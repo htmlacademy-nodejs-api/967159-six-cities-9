@@ -2,18 +2,15 @@ import EventEmitter from 'node:events';
 import { createReadStream } from 'node:fs';
 
 import { FileReader } from './file-reader.interface.js';
-import { Offer, CityType, RentType, UserType } from '../../types/index.js';
+import { Offer, City, RentType, UserType } from '../../types/index.js';
 
 
-import { DECIMAL, LINEBREAK, TAB, SEMICOLON, ZERO } from '../../../const.js';
+import { DECIMAL, LINEBREAK, TAB, SEPARATOR } from '../../../const.js';
 import { isDate } from './utils.js';
 
 
-const ONE = 1;
-
-
 export class TSVFileReader extends EventEmitter implements FileReader {
-  private CHUNK_SIZE = 16384;
+  private readonly CHUNK_SIZE = 16384;
 
   constructor(
     private readonly filename: string
@@ -34,8 +31,8 @@ export class TSVFileReader extends EventEmitter implements FileReader {
     for await (const chunk of readStream) {
       remainingData += chunk.toString();
 
-      while ((nextLinePosition = remainingData.indexOf(LINEBREAK)) >= ZERO) {
-        const completeRow = remainingData.slice(ZERO, nextLinePosition + ONE);
+      while ((nextLinePosition = remainingData.indexOf(LINEBREAK)) >= 0) {
+        const completeRow = remainingData.slice(0, nextLinePosition + 1);
         remainingData = remainingData.slice(++nextLinePosition);
         importedRowCount++;
 
@@ -75,7 +72,7 @@ export class TSVFileReader extends EventEmitter implements FileReader {
       title,
       description,
       postDate: isDate(new Date(createdDate)) ? new Date(createdDate) : new Date(),
-      city: CityType[city as 'Paris'| 'Cologne' | 'Brussels' | 'Amsterdam' | 'Hamburg' | 'Dusseldorf'],
+      city: City[city as 'Paris'| 'Cologne' | 'Brussels' | 'Amsterdam' | 'Hamburg' | 'Dusseldorf'],
       previewImage,
       images: this.parseToArray(images),
       isPremium: Boolean(isPremium),
@@ -102,7 +99,7 @@ export class TSVFileReader extends EventEmitter implements FileReader {
   }
 
   private parseToArray<T> (string: string): T[] {
-    return string.split(SEMICOLON).map((name) => name as T);
+    return string.split(SEPARATOR).map((name) => name as T);
   }
 
   private parseToNum (dataString: string): number {

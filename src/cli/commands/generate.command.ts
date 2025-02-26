@@ -16,6 +16,11 @@ export class GenerateCommand implements Command {
 
   public async execute (...parameters: string[]): Promise<void> {
     const [count, filepath, url] = parameters;
+
+    if (!count || !filepath || !url) {
+      throw new Error('Not enough information to execute the script');
+    }
+
     const offerCount = Number.parseInt(count, DECIMAL);
 
     try {
