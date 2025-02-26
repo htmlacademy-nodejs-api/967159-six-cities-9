@@ -1,4 +1,4 @@
-import { CityType } from './city-type.enum.js';
+import { City } from './city-type.enum.js';
 import { Goods } from './goods.enum.js';
 import { Location } from './location.type.js';
 import { RentType } from './rent-type.enum.js';
@@ -8,7 +8,7 @@ export type Offer = {
   title: string;
   description: string;
   postDate: Date;
-  city: CityType;
+  city: City;
   previewImage: string;
   images: string[];
   isPremium: boolean;
