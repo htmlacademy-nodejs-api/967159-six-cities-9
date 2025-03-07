@@ -1,13 +1,9 @@
 import convict from 'convict';
 import validator from 'convict-format-with-validator';
 
-convict.addFormats(validator);
+import { RestSchema } from '../../types/index.js';
 
-export type RestSchema = {
-  PORT: number;
-  SALT: string;
-  DB_HOST: string;
-}
+convict.addFormats(validator);
 
 export const configRestSchema = convict<RestSchema>({
   PORT: {

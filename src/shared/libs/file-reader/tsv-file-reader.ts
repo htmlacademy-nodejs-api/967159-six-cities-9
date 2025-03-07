@@ -43,7 +43,7 @@ export class TSVFileReader extends EventEmitter implements FileReader {
     this.emit('end', importedRowCount);
   }
 
-  private parseLineToOffer(line: string): Offer {
+  private parseLineToOffer(line: string): Omit<Offer, 'isFavorite'> {
     const [
       title,
       description,
@@ -52,7 +52,6 @@ export class TSVFileReader extends EventEmitter implements FileReader {
       previewImage,
       images,
       isPremium,
-      isFavorite,
       rating,
       type,
       bedrooms,
@@ -76,7 +75,6 @@ export class TSVFileReader extends EventEmitter implements FileReader {
       previewImage,
       images: this.parseToArray(images),
       isPremium: Boolean(isPremium),
-      isFavorite: Boolean(isFavorite),
       rating: this.parseToNum(rating),
       type: RentType[type as 'Apartment' | 'House' | 'Room' | 'Hotel'],
       bedrooms: this.parseToNum(bedrooms),
