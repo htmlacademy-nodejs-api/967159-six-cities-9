@@ -1,4 +1,4 @@
-import { City } from './city-type.enum.js';
+import { City } from './city.enum.js';
 import { Goods } from './goods.enum.js';
 import { Location } from './location.type.js';
 import { RentType } from './rent-type.enum.js';

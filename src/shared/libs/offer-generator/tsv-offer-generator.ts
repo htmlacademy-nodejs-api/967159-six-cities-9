@@ -35,7 +35,6 @@ export class TSVOfferGenerator implements OfferGenerator {
     const previewImage = getRandomItem<string>(this.mockData.previewImages);
     const images = getRandomItems<string>(this.mockData.images).join(SEPARATOR);
     const isPremium = getRandomItem<boolean>([true, false]).toString();
-    const isFavorite = getRandomItem<boolean>([true, false]).toString();
     const rating = generateRandomValue(LIMITS.MIN_RATING, LIMITS.MAX_RATING, LIMITS.NUM_AFTER_DIGIT).toString();
     const type = getRandomItem(Object.keys(RentType));
     const bedrooms = generateRandomValue(LIMITS.MIN_ROOMS_COUNT, LIMITS.MAX_ROOMS_COUNT).toString();
@@ -59,8 +58,8 @@ export class TSVOfferGenerator implements OfferGenerator {
 
     return [
       title, description, postDate, city,
-      previewImage, images, isPremium, isFavorite,
-      rating, type, bedrooms, maxAdults, price, goods,
+      previewImage, images, isPremium, rating,
+      type, bedrooms, maxAdults, price, goods,
       name, email, avatarUrl, password, userType,
       commentsCount, location,
     ].join(TAB);
