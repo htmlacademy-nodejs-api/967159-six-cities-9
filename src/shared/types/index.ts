@@ -1,5 +1,6 @@
 export { Offer } from './offer.type.js';
 export { User } from './user.type.js';
+export { UserEntityType } from './user-entity.type.js';
 export { Comment } from './comment.type.js';
 export { City } from './city.enum.js';
 export { RentType } from './rent-type.enum.js';
