@@ -11,22 +11,18 @@ const RETRY = {
   TIMEOUT: 1000,
 };
 
-const CONNECT_STATE = 1; //
+const READY_STATE = 1;
 
 @injectable()
 export class MongoDatabaseClient implements DatabaseClient {
   private mongoose: typeof Mongoose;
-  // private isConnected: boolean;
 
   constructor (
     @inject(COMPONENT_MAP.LOGGER) private readonly logger: Logger
-  ) {
-    // this.isConnected = false;
-  }
+  ) {}
 
   get isConnectedToDatabase () {
-    return this.mongoose?.connection?.readyState === CONNECT_STATE;
-    // return this.isConnected;
+    return this.mongoose?.connection?.readyState === READY_STATE;
   }
 
   public async connect (uri: string): Promise<void> {
@@ -40,7 +36,6 @@ export class MongoDatabaseClient implements DatabaseClient {
     while (attempt < RETRY.COUNT) {
       try {
         this.mongoose = await Mongoose.connect(uri);
-        // this.isConnected = true;
         this.logger.info('Database connection established.');
         return;
       } catch (error) {
@@ -59,7 +54,6 @@ export class MongoDatabaseClient implements DatabaseClient {
     }
 
     await this.mongoose.disconnect();
-    // this.isConnected = false;
     this.logger.info('Database connection closed.');
   }
 }

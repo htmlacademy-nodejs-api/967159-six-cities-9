@@ -8,7 +8,7 @@ import { Logger } from '../../shared/libs/logger/index.js';
 import { ConsoleLogger } from '../../shared/libs/logger/console.logger.js';
 
 import { Command } from './command.interface.js';
-import { DEFAULT_DB_PORT, DEFAULT_USER_PASSWORD } from './const.js';
+import { DEFAULT_USER_PASSWORD } from './const.js';
 
 
 export class ImportCommand implements Command {
@@ -32,8 +32,8 @@ export class ImportCommand implements Command {
     return '--import';
   }
 
-  public async execute (filename: string, login: string, password: string, host: string, dbname: string, salt: string): Promise<void> {
-    const uri = getMongoURI(login, password, host, DEFAULT_DB_PORT, dbname);
+  public async execute (filename: string, login: string, password: string, host: string, dbport: string, dbname: string, salt: string): Promise<void> {
+    const uri = getMongoURI(login, password, host, dbport, dbname);
     this.salt = salt;
 
     await this.databaseClient.connect(uri);
@@ -58,7 +58,7 @@ export class ImportCommand implements Command {
 
   private async saveOffer(offer: Offer) {
     const user = await this.userService.findOrCreate(
-      Object.assign({}, offer.host, { password: DEFAULT_USER_PASSWORD }),
+      Object.assign(offer.host, { password: DEFAULT_USER_PASSWORD }),
       this.salt
     );
 

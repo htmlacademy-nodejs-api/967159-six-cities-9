@@ -2,17 +2,6 @@ import { defaultClasses, getModelForClass, prop, modelOptions } from '@typegoose
 import { UserEntityType, UserType } from '../../types/index.js';
 import { createSHA256 } from '../../helpers/index.js';
 
-const LENGTH_MAP = {
-  NAME: {
-    MIN: 1,
-    MAX: 15
-  },
-  // PASSWORD: {
-  //   MIN: 6,
-  //   MAX: 12
-  // }
-};
-
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export interface UserEntity extends defaultClasses.Base {}
@@ -25,17 +14,12 @@ export interface UserEntity extends defaultClasses.Base {}
 })
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export class UserEntity extends defaultClasses.TimeStamps implements UserEntityType {
-  @prop({
-    required: true,
-    minlength: [LENGTH_MAP.NAME.MIN, `Min length for name is ${LENGTH_MAP.NAME.MIN}`],
-    maxlength: [LENGTH_MAP.NAME.MAX, `Max length for name is ${LENGTH_MAP.NAME.MAX}`]
-  })
+  @prop({ required: true })
   public name: string;
 
   @prop({
     unique: true,
-    required: true,
-    match: [/^([\w-\\.]+@([\w-]+\.)+[\w-]{2,4})?$/, 'Email is incorrect']
+    required: true
   })
   public email: string;
 
@@ -52,11 +36,7 @@ export class UserEntity extends defaultClasses.TimeStamps implements UserEntityT
   })
   public type: UserType;
 
-  @prop({
-    required: true,
-    // minlength: [LENGTH_MAP.PASSWORD.MIN, `Min length for password is ${LENGTH_MAP.PASSWORD.MIN}`],
-    // maxlength: [LENGTH_MAP.PASSWORD.MAX, `Max length for password is ${LENGTH_MAP.PASSWORD.MAX}`]
-  })
+  @prop({ required: true })
   private password?: string;
 
   constructor(userData: UserEntityType) {
