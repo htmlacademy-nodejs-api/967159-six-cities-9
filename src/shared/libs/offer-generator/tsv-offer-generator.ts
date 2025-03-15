@@ -22,6 +22,7 @@ const LIMITS = {
   MAX_LONGITUDE: 11,
   NUM_AFTER_DIGIT: 1,
   NUM_AFTER_DIGIT_LOCATION: 6,
+  IMAGES_COUNT: 6
 } as const;
 
 
@@ -33,7 +34,7 @@ export class TSVOfferGenerator implements OfferGenerator {
     const description = getRandomItem<string>(this.mockData.descriptions);
     const city = getRandomItem(Object.keys(City));
     const previewImage = getRandomItem<string>(this.mockData.previewImages);
-    const images = getRandomItems<string>(this.mockData.images).join(SEPARATOR);
+    const images = this.mockData.images.join(SEPARATOR);
     const isPremium = getRandomItem<boolean>([true, false]).toString();
     const rating = generateRandomValue(LIMITS.MIN_RATING, LIMITS.MAX_RATING, LIMITS.NUM_AFTER_DIGIT).toString();
     const type = getRandomItem(Object.keys(RentType));
