@@ -9,5 +9,8 @@ export { Goods } from './goods.enum.js';
 export { Location } from './location.type.js';
 
 export { MockServerData } from './mock-server-data.type.js';
-export { COMPONENT_MAP } from './component.const.js';
 export { RestSchema } from './rest-schema.type.js';
+
+export { Nullable } from './nullable.type.js';
+export { SortType } from './sort-type.enum.js';
+export { COMPONENT_MAP } from './component.const.js';

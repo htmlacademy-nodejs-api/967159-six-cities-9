@@ -6,5 +6,7 @@ export const COMPONENT_MAP = {
   USER_SERVICE: Symbol(),
   USER_MODEL: Symbol(),
   OFFER_SERVICE: Symbol(),
-  OFFER_MODEL: Symbol()
+  OFFER_MODEL: Symbol(),
+  COMMENT_SERVICE: Symbol(),
+  COMMENT_MODEL: Symbol(),
 } as const;
