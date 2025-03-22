@@ -2,10 +2,14 @@ import { inject, injectable } from 'inversify';
 import { DocumentType, types } from '@typegoose/typegoose';
 
 import { Logger } from '../../libs/logger/index.js';
+
 import { OfferEntity } from './offer.entity.js';
 import { OfferService } from './offer-service.interface.js';
 import { CreateOfferDto } from './dto/create-offer.dto.js';
-import { COMPONENT_MAP } from '../../types/index.js';
+import { UpdateOfferDto } from './dto/update-offer.dto.js';
+
+import { City, COMPONENT_MAP, SortType } from '../../types/index.js';
+import { OFFER_COUNT } from './const.js';
 
 
 @injectable()
@@ -23,6 +27,70 @@ export class DefaultOfferService implements OfferService {
   }
 
   public async findById (offerId: string): Promise<DocumentType<OfferEntity> | null> {
-    return this.offerModel.findById(offerId).exec();
+    return this.offerModel
+      .findById(offerId)
+      .populate(['userId'])
+      .exec();
+  }
+
+  public async find (count?: number): Promise<DocumentType<OfferEntity>[]> {
+    const limit = count ? Math.min(count, OFFER_COUNT.MAX) : OFFER_COUNT.DEFAULT;
+
+    return this.offerModel
+      .find()
+      .sort({ createdAt: SortType.Down })
+      .limit(limit)
+      .populate(['userId'])
+      .exec();
+  }
+
+  public async findPremium (city: City): Promise<DocumentType<OfferEntity>[]> {
+    return this.offerModel
+      .find({ city, isPremium: true })
+      .sort({ createdAt: SortType.Down })
+      .limit(OFFER_COUNT.PREMIUM)
+      .populate(['userId'])
+      .exec();
+  }
+
+  public async deleteById (offerId: string): Promise<DocumentType<OfferEntity> | null> {
+    return this.offerModel
+      .findByIdAndDelete(offerId)
+      .exec();
+  }
+
+  public async updateById (offerId: string, dto: UpdateOfferDto): Promise<DocumentType<OfferEntity> | null> {
+    return this.offerModel
+      .findByIdAndUpdate(offerId, dto, {new: true})
+      .populate(['userId'])
+      .exec();
+  }
+
+  public async exists (documentId: string): Promise<boolean> {
+    return this.offerModel
+      .exists({_id: documentId})
+      .then((r) => !!r);
+  }
+
+  public async incCommentCountAndUpdateRating (offerId: string, newRating: number): Promise<DocumentType<OfferEntity> | null> {
+    return this.offerModel
+      .findByIdAndUpdate(
+        offerId, {
+          $inc: {
+            commentCount: 1,
+            totalRating: newRating,
+          },
+          $set: {
+            rating: {
+              $divide: [
+                { $add: ['$totalRating', newRating] },
+                { $add: ['$commentCount', 1] }
+              ]
+            },
+          },
+        },
+        { new: true }
+      )
+      .exec();
   }
 }

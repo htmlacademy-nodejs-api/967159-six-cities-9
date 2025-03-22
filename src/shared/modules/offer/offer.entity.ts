@@ -83,6 +83,9 @@ export class OfferEntity extends defaultClasses.TimeStamps {
 
   @prop({ required: true })
   public location!: Location;
+
+  @prop({ default: 0 })
+  public totalRating!: number;
 }
 
 export const OfferModel = getModelForClass(OfferEntity);
