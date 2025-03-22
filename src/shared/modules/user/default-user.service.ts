@@ -8,6 +8,7 @@ import { UpdateUserDto } from './dto/update-user.dto.js';
 
 import { Logger } from '../../libs/logger/index.js';
 import { COMPONENT_MAP } from '../../types/index.js';
+import { OfferEntity } from '../offer/offer.entity.js';
 
 @injectable()
 export class DefaultUserService implements UserService {
@@ -48,5 +49,33 @@ export class DefaultUserService implements UserService {
     return this.userModel
       .findByIdAndUpdate(userId, dto, { new: true })
       .exec();
+  }
+
+  public async findFavorites(userId: string,): Promise<DocumentType<OfferEntity>[]> {
+    const user = await this.userModel.findById(userId).exec();
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    if (!user.favorites || !user.favorites.length) {
+      return [];
+    }
+
+    return this.userModel.aggregate([
+      {
+        $lookup: {
+          from: 'offers',
+          localField: 'favorites',
+          foreignField: '_id',
+          as: 'favoriteOffers', // или offers?
+        },
+      },
+      {
+        $project: {
+          favoriteOffers: 1,
+        },
+      },
+    ]).exec();
   }
 }

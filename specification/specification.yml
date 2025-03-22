@@ -7,7 +7,6 @@ info:
     name: MIT
     url: https://opensource.org/licenses/MIT
   version: 1.0.0
-# без сервера ругается
 servers:
   - url: https://api.com/v1c
     description: Основной сервер API
@@ -101,43 +100,13 @@ paths:
         "401":
           description: Пользователь не авторизован. Неверный или отсутствующий токен.
 
-  /users/logout:
-    post:
+  /users/{userId}/favorites:
+    get:
+      operationId: getFavorites
       tags:
         - users
-      summary: Завершение пользовательского сеанса
-      description: Завершается сессия пользователя, если токен прошёл проверку.
-
-      security:
-        - BearerAuth: []
-
-      operationId: logoutUser
-      requestBody:
-        description: Запрос на завершение сессии.
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                token:
-                  $ref: '#/components/schemas/token'
-      responses:
-        "200":
-          description: Сессия успешно завершена.
-        "400":
-          description: Ошибка валидации токена. Токен неверен или отсутствует.
-        "401":
-          description: Не авторизован. Токен отсутствует или недействителен.
-
-  /users/{userId}/avatar:
-    post:
-      operationId: downloadAvatar
-      tags:
-        - users
-      summary: Загрузить изображение аватара
-      description: Загружает изображение аватара пользователя. Изображение
-        аватара должно быть в формате `png` или `jpg`.
+      summary: Список избранных предложений
+      description: Получение списка избранных предложений по аренде для конкретного пользователя.
 
       security:
         - BearerAuth: []
@@ -145,44 +114,106 @@ paths:
       parameters:
         - name: userId
           in: path
-          description: Идентификатор пользователя, для которого загружается аватар
+          description: Идентификатор пользователя, для которого загружаются избранные предложения
+          required: true
+          schema:
+            $ref: '#/components/schemas/userId'
+
+      responses:
+        "200":
+          description: Успешно возвращён список избранных предложений по аренде.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getOffers'
+        "400":
+          description: Неверный формат запроса.
+        "401":
+          description: Не авторизован. Пожалуйста, предоставьте валидный токен.
+
+    patch:
+      operationId: addToFavorites
+      tags:
+        - users
+      summary: Добавления предложения в избранное
+      description: Информация для добавления предложения в список избранных.
+
+      security:
+       - BearerAuth: []
+
+      parameters:
+        - name: userId
+          in: path
+          description: Идентификатор пользователя, который добавляет предложение в избранное
           required: true
           schema:
             $ref: '#/components/schemas/userId'
 
       requestBody:
-        description: Изображение аватара пользователя
-        required: true
+        description: Информация для добавления в избранное.
         content:
-          multipart/form-data:
+          application/json:
             schema:
               type: object
               properties:
-                avatar:
-                  type: string
-                  format: binary
-                  description: Изображение аватара пользователя (файл)
+                offerId:
+                  $ref: "#/components/schemas/offerId"
+        required: true
 
       responses:
         "200":
-          description: Изображение аватара успешно загружено.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  avatarUrl:
-                    $ref: '#/components/schemas/userAvatar'
+          description: Предложение успешно добавлено в избранное.
         "400":
-          description: Неверный формат файла. Допускаются только изображения в формате PNG или JPG.
+          description: Неверный запрос или неверный идентификатор предложения (ошибка валидации).
         "401":
-          description: Не авторизован. Пожалуйста, предоставьте валидный токен.
+          description: Неавторизованный запрос. Требуется аутентификация с токеном.
+        "404":
+          description: Предложение не найдено.
+
+    delete:
+      operationId: deleteFromFavorites
+      tags:
+        - users
+      summary: Удаление предложения из избранного
+      description: Информация для удаления предложения из списка избранных.
+
+      security:
+       - BearerAuth: []
+
+      parameters:
+        - name: userId
+          in: path
+          description: Идентификатор пользователя, который удаляет предложение из избранного
+          required: true
+          schema:
+            $ref: '#/components/schemas/userId'
+
+      requestBody:
+        description: Информация для удаления из избранного.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                offerId:
+                  $ref: "#/components/schemas/offerId"
+        required: true
+
+      responses:
+        "200":
+          description: Предложение успешно удалено из избранного.
+        "400":
+          description: Неверный запрос или неверный идентификатор предложения (ошибка валидации).
+        "401":
+          description: Неавторизованный запрос. Требуется аутентификация с токеном.
+        "404":
+          description: Предложение не найдено.
 
   /offers:
     get:
       operationId: getOffers
       tags:
-        -  offers
+        - offers
       summary: Список предложений по аренде
       description: Получение списка предложений по аренде с возможностью указать количество возвращаемых предложений. Если `isPremium=true`, параметр `city` должен быть обязательно указан.
       security: []
@@ -249,60 +280,6 @@ paths:
           description: Не авторизован. Пожалуйста, предоставьте валидный токен.
         "422":
           description: Ошибка валидации данных (неверный формат или отсутствующие обязательные поля).
-
-    put:
-      operationId: setFavorite
-      tags:
-        - offers
-      summary: Добавление и удаление предложения в/из избранного.
-      description: Информация для добавления и удаления любого предложения в/из списка избранных предложений.
-
-      security:
-        - BearerAuth: []
-
-      requestBody:
-        description: Информация для добавления и удаления в/из избранного.
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                offerId:
-                  $ref: "#/components/schemas/offerId"
-                isFavorite:
-                  type: boolean
-                  example: true
-        required: true
-      responses:
-        "200":
-          description: Предложение успешно добавлено/удалено в/из избранного.
-        "400":
-          description: Неверный запрос или неверный идентификатор предложения.
-        "401":
-          description: Неавторизованный запрос. Требуется аутентификация с токеном.
-        "404":
-          description: Предложение не найдено.
-
-  /offers/favorite:
-    get:
-      operationId: getFavoriteOffers
-      tags:
-        -  offers
-      summary: Список избранных предложений
-      description: Получение списка избранных предложений по аренде.
-
-      security:
-        - BearerAuth: []
-
-      responses:
-        "200":
-          description: Успешно возвращён список избранных предложений по аренде.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/getOffers'
-        "400":
-          description: Неверный формат запроса.
 
   /offers/{offerId}:
     parameters:

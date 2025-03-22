@@ -33,136 +33,23 @@ export class DefaultOfferService implements OfferService {
       .exec();
   }
 
-  // public async find (count?: number): Promise<DocumentType<OfferEntity>[]> {
-  //   const limit = count ?? OFFER_COUNT.DEFAULT;
-
-  //   return this.offerModel
-  //     .find()
-  //     .sort({ createdAt: SortType.Down })
-  //     .limit(limit)
-  //     .populate(['userId'])
-  //     .exec();
-  // }
-
   public async find (count?: number): Promise<DocumentType<OfferEntity>[]> {
-    const limit = count ?? OFFER_COUNT.DEFAULT;
+    const limit = count ? Math.min(count, OFFER_COUNT.MAX) : OFFER_COUNT.DEFAULT;
 
     return this.offerModel
-      .aggregate([
-        {
-          $lookup: {
-            from: 'comments',
-            let: { offerId: '$_id'},
-            pipeline: [
-              { $match: { $expr: { $in: ['$$offerId', '$comments'] } } },
-              { $project: { _id: 1, rating: 1}}
-            ],
-            as: 'comments'
-          },
-        },
-        {
-          $addFields: {
-            id: { $toString: '$_id'},
-            commentsCount: { $size: '$comments'},
-            rating: {
-              $cond: {
-                if: { $gt: [{ $size: '$comments' }, 0] },
-                then: {
-                  $avg: '$comments.rating'
-                },
-                else: 0
-              }
-            }
-          }
-        },
-        { $unset: 'comments' },
-        { $limit: limit },
-        { $sort: { createdAt: SortType.Down }
-        }
-      ]).exec();
-  }
-
-  // public async findPremium (city: City): Promise<DocumentType<OfferEntity>[]> {
-  //   return this.offerModel
-  //     .find({ city, isPremium: true })
-  //     .sort({ createdAt: SortType.Down })
-  //     .limit(OFFER_COUNT.PREMIUM)
-  //     .populate(['userId'])
-  //     .exec();
-  // }
-
-  public async findPremium (city: City): Promise<DocumentType<OfferEntity>[]> {
-    return this.offerModel
-      .aggregate([
-        { $match: { city, isPremium: true } },
-        {
-          $lookup: {
-            from: 'comments',
-            let: { offerId: '$_id' },
-            pipeline: [
-              { $match: { $expr: { $in: ['$$offerId', '$comments'] } } },
-              { $project: { _id: 1, rating: 1 } }
-            ],
-            as: 'comments'
-          }
-        },
-        {
-          $addFields: {
-            id: { $toString: '$_id' },
-            commentsCount: { $size: '$comments' },
-            rating: {
-              $cond: {
-                if: { $gt: [{ $size: '$comments' }, 0] },
-                then: { $avg: '$comments.rating' },
-                else: 0
-              }
-            }
-          }
-        },
-        { $unset: 'comments' },
-        { $limit: OFFER_COUNT.PREMIUM },
-        { $sort: { createdAt: SortType.Down } }
-      ])
+      .find()
+      .sort({ createdAt: SortType.Down })
+      .limit(limit)
+      .populate(['userId'])
       .exec();
   }
 
-  // public async findFavorite (): Promise<DocumentType<OfferEntity>[]> {
-  //   return this.offerModel
-  //     .find({ isFavorite: true })
-  //     .populate(['userId'])
-  //     .exec();
-  // }
-
-  public async findFavorite(): Promise<DocumentType<OfferEntity>[]> {
+  public async findPremium (city: City): Promise<DocumentType<OfferEntity>[]> {
     return this.offerModel
-      .aggregate([
-        { $match: { isFavorite: true } },
-        {
-          $lookup: {
-            from: 'comments',
-            let: { offerId: '$_id' },
-            pipeline: [
-              { $match: { $expr: { $in: ['$$offerId', '$comments'] } } },
-              { $project: { _id: 1, rating: 1 } }
-            ],
-            as: 'comments'
-          }
-        },
-        {
-          $addFields: {
-            id: { $toString: '$_id' },
-            commentsCount: { $size: '$comments' },
-            rating: {
-              $cond: {
-                if: { $gt: [{ $size: '$comments' }, 0] },
-                then: { $avg: '$comments.rating' },
-                else: 0
-              }
-            }
-          }
-        },
-        { $unset: 'comments' }
-      ])
+      .find({ city, isPremium: true })
+      .sort({ createdAt: SortType.Down })
+      .limit(OFFER_COUNT.PREMIUM)
+      .populate(['userId'])
       .exec();
   }
 
@@ -180,7 +67,30 @@ export class DefaultOfferService implements OfferService {
   }
 
   public async exists (documentId: string): Promise<boolean> {
-    return (await this.offerModel
-      .exists({_id: documentId})) !== null;
+    return this.offerModel
+      .exists({_id: documentId})
+      .then((r) => !!r);
+  }
+
+  public async incCommentCountAndUpdateRating (offerId: string, newRating: number): Promise<DocumentType<OfferEntity> | null> {
+    return this.offerModel
+      .findByIdAndUpdate(
+        offerId, {
+          $inc: {
+            commentCount: 1,
+            totalRating: newRating,
+          },
+          $set: {
+            rating: {
+              $divide: [
+                { $add: ['$totalRating', newRating] },
+                { $add: ['$commentCount', 1] }
+              ]
+            },
+          },
+        },
+        { new: true }
+      )
+      .exec();
   }
 }

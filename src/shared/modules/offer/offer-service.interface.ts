@@ -12,7 +12,6 @@ export interface OfferService {
   findPremium(city: City): Promise<DocumentType<OfferEntity>[]>;
   deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null>;
   updateById(offerId: string, dto: UpdateOfferDto): Promise<DocumentType<OfferEntity> | null>;
-  findFavorite(): Promise<DocumentType<OfferEntity>[]>;
-  // incCommentCount(offerId: string): Promise<DocumentType<OfferEntity> | null>;
+  incCommentCountAndUpdateRating(offerId: string, newRating: number): Promise<DocumentType<OfferEntity> | null>;
   exists(documentId: string): Promise<boolean>;
 }
