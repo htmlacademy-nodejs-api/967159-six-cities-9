@@ -28,7 +28,8 @@ export class OfferRdo {
   public isPremium: boolean;
 
   @Expose()
-  public isFavorite: boolean = false;
+  @Transform(({ obj }) => obj.isFavorite ?? false)
+  public isFavorite: boolean;
 
   @Expose()
   public rating: number;

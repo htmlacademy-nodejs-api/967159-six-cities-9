@@ -25,13 +25,13 @@ export class OfferController extends BaseController {
     this.addRoute({ path: '/', method: HttpMethod.Post, handler: this.create });
   }
 
-  public async index(_req: Request, res: Response): Promise<void> {
+  public async index (_req: Request, res: Response): Promise<void> {
     const offers = await this.offerService.find();
     const responseData = fillDTO(OfferRdo, offers);
     this.ok(res, responseData);
   }
 
-  public async create(
+  public async create (
     { body }: Request<Record<string, unknown>, Record<string, unknown>, CreateOfferDto>,
     res: Response
   ): Promise<void> {
