@@ -5,8 +5,11 @@ export const COMPONENT_MAP = {
   DATABASE_CLIENT: Symbol(),
   USER_SERVICE: Symbol(),
   USER_MODEL: Symbol(),
+  USER_CONTROLLER: Symbol(),
   OFFER_SERVICE: Symbol(),
   OFFER_MODEL: Symbol(),
+  OFFER_CONTROLLER: Symbol(),
   COMMENT_SERVICE: Symbol(),
   COMMENT_MODEL: Symbol(),
+  EXCEPTION_FILTER: Symbol(),
 } as const;
