@@ -1,0 +1,29 @@
+Предложения
+## Получить список предложений
+GET http://localhost:5000/offers HTTP/1.1
+Content-Type: application/json
+
+###
+## Добавить новое предложение
+POST http://localhost:5000/offers HTTP/1.1
+Content-Type: application/json
+
+{
+  "title": "Шикарный дом в тихом месте",
+  "description": "Дом с тремя спальнями в тихом, уютном месте, где вам никто не побеспокоит.",
+  "city": "Brussels",
+  "previewImage": "home.jpg",
+  "images": ["home1.jpg", "home2.jpg", "home3.jpg", "home4.jpg", "home5.jpg", "home6.jpg"],
+  "isPremium": "false",
+  "rating": "0",
+  "type": "house",
+  "bedrooms": "3",
+  "maxAdults": "6",
+  "price": "2000",
+  "goods": ["Breakfast", "Washer", "Fridge"],
+  "userId": "67d55eb0dcd1348e3128035d",
+  "commentsCount": "0",
+  "location": { "latitude": "48.85661", "longitude": "2.351499" }
+}
+
+###

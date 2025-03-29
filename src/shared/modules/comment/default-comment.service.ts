@@ -24,6 +24,7 @@ export class DefaultCommentService implements CommentService {
     this.logger.info(`New comment created: ${comment._id}`);
 
     const { offerId, rating: newRating } = dto;
+    // TODO: Проверить сначала, что такой оффер существует?
     await this.offerService.incCommentCountAndUpdateRating(offerId, newRating);
 
     return comment.populate('userId');

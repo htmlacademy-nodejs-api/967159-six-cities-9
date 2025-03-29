@@ -1,5 +1,6 @@
 export type RestSchema = {
   PORT: number;
+  HOST: string
   SALT: string;
   DB_HOST: string;
   DB_USER: string;

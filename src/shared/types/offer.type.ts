@@ -14,7 +14,7 @@ export type Offer = {
   isPremium: boolean;
   isFavorite: boolean;
   rating: number;
-  type: RentType,
+  type: RentType;
   bedrooms: number;
   maxAdults: number;
   price: number;

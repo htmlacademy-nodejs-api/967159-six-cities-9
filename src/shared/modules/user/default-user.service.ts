@@ -64,6 +64,9 @@ export class DefaultUserService implements UserService {
 
     return this.userModel.aggregate([
       {
+        $match: { _id: userId }
+      },
+      {
         $lookup: {
           from: 'offers',
           localField: 'favorites',

@@ -209,6 +209,54 @@ paths:
         "404":
           description: Предложение не найдено.
 
+  /users/{userId}/avatar:
+    post:
+      operationId: downloadAvatar
+      tags:
+        - users
+      summary: Загрузить изображение аватара
+      description: Загружает изображение аватара пользователя. Изображение
+        аватара должно быть в формате `png` или `jpg`.
+
+      security:
+        - BearerAuth: []
+
+      parameters:
+        - name: userId
+          in: path
+          description: Идентификатор пользователя, для которого загружается аватар
+          required: true
+          schema:
+            $ref: '#/components/schemas/userId'
+
+      requestBody:
+        description: Изображение аватара пользователя
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+                  description: Изображение аватара пользователя (файл)
+
+      responses:
+        "200":
+          description: Изображение аватара успешно загружено.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  avatarUrl:
+                    $ref: '#/components/schemas/userAvatar'
+        "400":
+          description: Неверный формат файла. Допускаются только изображения в формате PNG или JPG.
+        "401":
+          description: Не авторизован. Пожалуйста, предоставьте валидный токен.
+
   /offers:
     get:
       operationId: getOffers
