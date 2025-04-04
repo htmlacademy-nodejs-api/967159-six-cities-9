@@ -13,7 +13,7 @@ export const configRestSchema = convict<RestSchema>({
     default: null
   },
   HOST: {
-    doc: 'IP address of connections',
+    doc: 'The hostname or IP address of the server',
     format: 'ipaddress',
     env: 'HOST',
     default: null

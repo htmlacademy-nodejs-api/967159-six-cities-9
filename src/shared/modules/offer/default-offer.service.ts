@@ -10,6 +10,8 @@ import { UpdateOfferDto } from './dto/update-offer.dto.js';
 
 import { City, COMPONENT_MAP, SortType } from '../../types/index.js';
 import { OFFER_COUNT } from './const.js';
+import { HttpError } from '../../libs/rest/index.js';
+import { StatusCodes } from 'http-status-codes';
 
 
 @injectable()
@@ -73,24 +75,28 @@ export class DefaultOfferService implements OfferService {
   }
 
   public async incCommentCountAndUpdateRating (offerId: string, newRating: number): Promise<DocumentType<OfferEntity> | null> {
-    return this.offerModel
-      .findByIdAndUpdate(
-        offerId, {
-          $inc: {
-            commentCount: 1,
-            totalRating: newRating,
-          },
-          $set: {
-            rating: {
-              $divide: [
-                { $add: ['$totalRating', newRating] },
-                { $add: ['$commentCount', 1] }
-              ]
-            },
-          },
+    const offer = await this.offerModel.findById(offerId);
+
+    if (!offer) {
+      throw new HttpError(StatusCodes.NOT_FOUND, `Offer with id ${offerId} not found.`, 'OfferService');
+    }
+
+    const totalRating = offer.totalRating + newRating;
+    const commentsCount = offer.commentsCount + 1;
+    const newCalculatedRating = totalRating / commentsCount;
+
+    return this.offerModel.findByIdAndUpdate(
+      offerId,
+      {
+        $inc: {
+          commentsCount: 1,
+          totalRating: newRating,
         },
-        { new: true }
-      )
-      .exec();
+        $set: {
+          rating: newCalculatedRating,
+        },
+      },
+      { new: true }
+    ).exec();
   }
 }
