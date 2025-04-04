@@ -5,3 +5,4 @@ export { DefaultOfferService } from './default-offer.service.js';
 export { createOfferContainer } from './offer.container.js';
 export { OfferController } from './offer.controller.js';
 export { OfferRdo } from './rdo/offer.rdo.js';
+export { OfferValidationMessage } from './dto/offer.messages.js';

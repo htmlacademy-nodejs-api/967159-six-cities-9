@@ -1,5 +1,6 @@
-import { Expose, Transform } from 'class-transformer';
+import { Expose, Transform, Type } from 'class-transformer';
 import { City, Goods, Location, RentType } from '../../../types/index.js';
+import { UserRdo } from '../../user/index.js';
 
 export class OfferRdo {
   @Expose()
@@ -11,8 +12,7 @@ export class OfferRdo {
   @Expose()
   public description: string;
 
-  @Expose()
-  @Transform(({ obj }) => obj.createdAt, { toClassOnly: true })
+  @Expose({ name: 'createdAt' })
   public postDate: Date;
 
   @Expose()
@@ -32,7 +32,7 @@ export class OfferRdo {
   public isFavorite: boolean;
 
   @Expose()
-  public rating: number;
+  public rating: number; //TODO
 
   @Expose()
   public type: RentType;
@@ -49,10 +49,9 @@ export class OfferRdo {
   @Expose()
   public goods: Goods[];
 
-  // @Expose()
-  // public host: User;
-  @Expose()
-  public host: string;
+  @Expose({ name: 'userId'})
+  @Type(() => UserRdo)
+  public host: UserRdo;
 
   @Expose()
   public commentsCount: number;

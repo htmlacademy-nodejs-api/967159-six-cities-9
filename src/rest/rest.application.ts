@@ -18,9 +18,10 @@ export class RestApplication {
     @inject(COMPONENT_MAP.LOGGER) private readonly logger: Logger,
     @inject(COMPONENT_MAP.CONFIG) private readonly config: Config<RestSchema>,
     @inject(COMPONENT_MAP.DATABASE_CLIENT) private readonly databaseClient: DatabaseClient,
-    @inject(COMPONENT_MAP.OFFER_CONTROLLER) private readonly offerController: Controller,
     @inject(COMPONENT_MAP.EXCEPTION_FILTER) private readonly appExceptionFilter: ExceptionFilter,
     @inject(COMPONENT_MAP.USER_CONTROLLER) private readonly userController: Controller,
+    @inject(COMPONENT_MAP.OFFER_CONTROLLER) private readonly offerController: Controller,
+    @inject(COMPONENT_MAP.COMMENT_CONTROLLER) private readonly commentController: Controller,
   ) {
     this.server = express();
   }
@@ -69,8 +70,9 @@ export class RestApplication {
   }
 
   private async initControllers() {
-    this.server.use('/offers', this.offerController.router);
     this.server.use('/users', this.userController.router);
+    this.server.use('/offers', this.offerController.router);
+    this.server.use('/comments', this.commentController.router);
   }
 
   private async initMiddleware() {

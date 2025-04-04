@@ -263,7 +263,7 @@ paths:
       tags:
         - offers
       summary: Список предложений по аренде
-      description: Получение списка предложений по аренде с возможностью указать количество возвращаемых предложений. Если `isPremium=true`, параметр `city` должен быть обязательно указан.
+      description: Получение списка предложений по аренде с возможностью указать количество возвращаемых предложений.
       security: []
       parameters:
         - name: limit
@@ -273,19 +273,6 @@ paths:
           schema:
             type: integer
             example: 60
-        - name: isPremium
-          in: query
-          description: Фильтр для поиска премиальных предложений.
-          required: false
-          schema:
-            type: boolean
-            example: true
-        - name: city
-          in: query
-          description: Город, по которому нужно фильтровать предложения. Если `isPremium=true`, необходимо указать город.
-          required: false
-          schema:
-            $ref: '#/components/schemas/city'
 
       responses:
         "200":
@@ -329,6 +316,32 @@ paths:
         "422":
           description: Ошибка валидации данных (неверный формат или отсутствующие обязательные поля).
 
+  /offers/premium:
+    get:
+      operationId: getPremiumOffers
+      tags:
+        - offers
+      summary: Список премиальных предложений по аренде для города
+      description: Получение списка премиальных предложений по аренде для города.
+      security: []
+      parameters:
+        - name: city
+          in: query
+          description: Город, по которому нужно фильтровать предложения.
+          required: false
+          schema:
+            $ref: '#/components/schemas/city'
+
+      responses:
+        "200":
+          description: Успешно возвращён список премиальных предложений по аренде для города.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getOffers'
+        "400":
+          description: Неверный формат запроса.
+
   /offers/{offerId}:
     parameters:
       - name: offerId
@@ -355,7 +368,7 @@ paths:
         "404":
           description: Предложение не найдено.
 
-    put:
+    patch:
       operationId: uodateOffer
       tags:
         - offers
@@ -410,7 +423,7 @@ paths:
         "403":
           description: Запрещено. Пользователь пытается удалить чужое предложение.
 
-  /comments/{offerId}:
+  /offers/{offerId}/comments:
     parameters:
       - name: offerId
         in: path
@@ -421,7 +434,7 @@ paths:
     get:
       operationId: getComments
       tags:
-        - comments
+        - offers
       summary: Список комментариев для предложения.
       description: Получение списка комментариев для определённого предложения по offerId.
       security: []
@@ -438,6 +451,7 @@ paths:
         "404":
           description: Предложение с указанным идентификатором не найдено.
 
+  /comments:
     post:
       operationId: addComment
       tags:

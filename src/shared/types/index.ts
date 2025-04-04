@@ -14,3 +14,4 @@ export { RestSchema } from './rest-schema.type.js';
 export { Nullable } from './nullable.type.js';
 export { SortType } from './sort-type.enum.js';
 export { COMPONENT_MAP } from './component.const.js';
+export { DocumentExists } from './document-exists.interface.js';
