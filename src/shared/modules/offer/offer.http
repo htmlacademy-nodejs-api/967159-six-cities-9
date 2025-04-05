@@ -28,18 +28,15 @@ Content-Type: application/json
 }
 
 ###
-
 ## Получить объявление по идентификатору
-GET http://localhost:5000/offers/67e7eec380d5f0a01c3849a8 HTTP/1.1
+GET http://localhost:5000/offers/67edaff7c6abb92f5d8e97fd HTTP/1.1
 
 
 ###
-
 ## Удалить объявление по идентификатору
 DELETE http://localhost:5000/offers/67e83bf5d0bf212d4af0906d HTTP/1.1
 
 ###
-
 ## Обновить объявление
 
 PATCH http://localhost:5000/offers/67e837386c356275c7069e25 HTTP/1.1
@@ -53,7 +50,7 @@ Content-Type: application/json
 
 ###
 ## Список комментариев к объявлению
-GET http://localhost:5000/offers/67e83bf5d0bf212d4af0906d/comments HTTP/1.1
+GET http://localhost:5000/offers/67edaff7c6abb92f5d8e97fd/comments HTTP/1.1
 
 ###
 ## Список премиальных предложений по городу

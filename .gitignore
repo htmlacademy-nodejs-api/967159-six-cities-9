@@ -12,3 +12,5 @@ coverage
 *.log
 .env
 unused.ts
+
+/upload/
