@@ -6,7 +6,7 @@ import {
   DocumentExistsMiddleware,
   HttpMethod,
   RequestQuery,
-  ValidateDtoMiddleware,
+  ValidateDTOMiddleware,
   ValidateObjectIdMiddleware,
   ValidateEnumQueryMiddleware
 } from '../../libs/rest/index.js';
@@ -40,7 +40,7 @@ export class OfferController extends BaseController {
       path: '/',
       method: HttpMethod.Post,
       handler: this.create,
-      middlewares: [new ValidateDtoMiddleware(CreateOfferDto)]
+      middlewares: [new ValidateDTOMiddleware(CreateOfferDto)]
     });
     this.addRoute({
       path: '/premium',
@@ -72,7 +72,7 @@ export class OfferController extends BaseController {
       handler: this.update,
       middlewares: [
         new ValidateObjectIdMiddleware('offerId'),
-        new ValidateDtoMiddleware(UpdateOfferDto),
+        new ValidateDTOMiddleware(UpdateOfferDto),
         new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId'),
       ]
     });
@@ -104,22 +104,6 @@ export class OfferController extends BaseController {
     const premiumOffers = await this.offerService.findPremium(city as City);
     this.ok(res, fillDTO(OfferRdo, premiumOffers));
   }
-
-  // public async create ({ body }: CreateOfferRequest, res: Response): Promise<void> {
-
-  //   // const existCategory = await this.categoryService.findByCategoryName(body.name);
-
-  //   // if (existCategory) {
-  //   //  throw new HttpError(
-  //   //    StatusCodes.UNPROCESSABLE_ENTITY,
-  //   //    { error: existCategoryError.message }
-  //   //    `Category with name «${body.name}» exists.`,
-  //   //    'CategoryController';
-  //   // }
-
-  //   const result = await this.offerService.create(body);
-  //   this.created(res, fillDTO(OfferRdo, result));
-  // }
 
   public async show ({ params }: Request<ParamOfferId>, res: Response): Promise<void> {
     const { offerId } = params;
